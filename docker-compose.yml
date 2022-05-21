@@ -1,0 +1,41 @@
+version: '3'
+services:
+  inventory-app:
+   image: inventory-app
+   build: ./views/
+   stdin_open: true
+   ports:
+     - "3000:3000"
+   networks:
+      - inventory-network
+   volumes: # bind-mount applied to the container
+     - ./views/:/usr/src/app
+     - /usr/src/app/node_modules
+  inventory-api-server:
+    image: inventory-api-server
+    build: ./
+    ports:
+      - "5000:5000"
+    networks:
+      - inventory-network
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+     - mongo
+  mongo:
+    image: mongo:5.0.0
+    ports:
+      - "27017:27017"
+    networks:
+      - inventory-network
+    volumes:
+      - mongo-data:/data/db
+    
+networks:
+  inventory-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+   driver: local
